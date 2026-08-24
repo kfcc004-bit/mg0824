@@ -1,611 +1,587 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- Color Palette: Vibrant MG Blue & Coral Accent (#0F52BA, #00A896, #FF5964, #F4A261) -->
+    <!-- Narrative Plan: 
+         1. Hero Header & Executive Summary (Core Value Proposition)
+         2. Section 1: Background & Need (Why) - Traditional vs ACSS Model
+         3. Section 2: Core Specifications & Interest Rate Breakdown (What) - Interactive Chart of Preferential Rates
+         4. Section 3: 3E Differentiation Strategy (How) - Easy UX, Alternative Credit Scoring, Eco-system
+         5. Section 4: Non-face-to-face Process & Risk Management (Safety & Flow) - Daily Cash-flow Sync & Early Warning
+         6. Section 5: Target Outcomes & 4-Month Timeline (Outcome & Timeline) - KPI Goals & Phase Chart
+    -->
+    <!-- Visualizations Summary:
+         - Chart 1: Preferential Interest Rate Breakdown -> Horizontal Bar Chart (Chart.js) -> Compares discount points up to -1.5%p (NO SVG)
+         - Chart 2: ACSS Evaluation Factors Weight -> Donut Chart (Chart.js) -> Shows non-traditional scoring breakdown (NO SVG)
+         - Chart 3: Target Delinquency Rate Comparison -> Vertical Bar Chart (Chart.js) -> Benchmarks target 1.2% vs industry averages (NO SVG)
+         - Process Diagram: 3-Step Mobile Process -> Pure Tailwind CSS Cards & Unicode Flow (NO SVG, NO Mermaid)
+         - Timeline Roadmap: 4-Month Rollout -> Styled Grid Timeline Cards (NO SVG)
+    -->
+    <!-- Confirmation: Neither Mermaid JS nor SVG were used anywhere in this file. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG 맞춤형 대출 상환 계산기</title>
+    <title>MG 상생 hope dream 대출 기획안 인포그래픽</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 나눔바른고딕 웹폰트 로드 (눈누 제공 CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'NanumBarunGothic';
-            font-style: normal;
-            font-weight: 400;
-            src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot');
-            src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot?#iefix') format('embedded-opentype'), url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.woff') format('woff'), url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.ttf') format('truetype');
-        }
-
-        @font-face {
-            font-family: 'NanumBarunGothic';
-            font-style: normal;
-            font-weight: 700;
-            src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebBold.eot');
-            src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebBold.eot?#iefix') format('embedded-opentype'), url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebBold.woff') format('woff'), url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebBold.ttf') format('truetype')
-        }
-        
         body {
-            /* 폰트를 나눔바른고딕으로 변경 */
-            font-family: 'NanumBarunGothic', sans-serif;
-            background-color: #FAFAF7; /* 아이보리/베이지 톤의 따뜻하고 고급스러운 배경 */
-            /* 폰트가 변경되었으므로 크기를 원래의 정갈한 사이즈로 되돌림 */
-            font-size: 16px; 
+            font-family: 'Nanum Pen Script', cursive, sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            font-size: 1.25rem; /* 손글씨 특성상 가독성을 위해 기본 폰트 크기 확대 */
         }
-        /* 고급스러운 컬러 팔레트 커스텀 */
-        .text-primary-dark { color: #2D3A45; } /* 차분한 다크 블루/그레이 */
-        .text-accent-blue { color: #628CA6; } /* 우아하고 신뢰감 있는 연한 블루 */
-        .bg-accent-blue { background-color: #628CA6; }
-        .bg-soft-blue { background-color: #F0F4F8; } /* 아주 연한 블루 (하이라이트용) */
-        .bg-beige { background-color: #F5F2EB; } /* 부드러운 베이지 */
-        .border-beige { border-color: #E8E5DC; }
-        .border-accent-blue { border-color: #628CA6; }
-        
-        /* 슬라이더(range) 커스텀 스타일 - 둥글고 부드러운 느낌 */
-        input[type=range] {
-            -webkit-appearance: none;
+        .chart-container {
+            position: relative;
             width: 100%;
-            background: transparent;
+            max-width: 580px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 290px;
+            max-height: 380px;
         }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 22px;
-            width: 22px;
-            border-radius: 50%;
-            background: #628CA6;
-            cursor: pointer;
-            margin-top: -8px;
-            box-shadow: 0 2px 6px rgba(98, 140, 166, 0.3);
-            border: 2px solid #ffffff;
-            transition: transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #E8E5DC;
-            border-radius: 4px;
-        }
-        input[type=range]:focus {
-            outline: none;
-        }
-        /* 테이블 스크롤 및 모바일 최적화 */
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        /* 넘버 인풋 화살표 숨기기 */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-        /* 스크롤바 고급화 */
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #FAFAF7; 
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #D5D1C8; 
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #C4C0B6; 
-        }
-        
-        /* 캐릭터 회전 애니메이션 */
-        @keyframes spin-once {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .spin-action {
-            animation: spin-once 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 통통 튀는 회전 효과 */
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 330px;
+            }
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased py-8 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center justify-center">
+<body class="antialiased pb-16">
 
-    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100">
-        <!-- 헤더 섹션: 화이트/베이지 톤으로 부드럽게 -->
-        <div class="bg-white border-b border-beige p-8 flex items-center justify-between relative overflow-hidden">
-            <!-- 배경 장식용 부드러운 원형 그라데이션 -->
-            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-soft-blue opacity-50 blur-3xl pointer-events-none"></div>
-            
-            <div class="relative z-10">
-                <!-- 제목 폰트 클래스를 일반적인 크기로 되돌림 -->
-                <h1 class="text-2xl font-bold tracking-tight text-primary-dark">MG 맞춤형 대출 상환 계산기</h1>
-                <!-- 부제목 폰트 클래스를 일반적인 크기로 되돌림 -->
-                <p class="text-accent-blue mt-2 text-sm font-medium">고객님의 든든한 내일, 새마을금고가 함께합니다.</p>
-            </div>
-            
-            <div class="relative z-10 hidden sm:flex items-center justify-center group cursor-pointer ml-auto">
-                <div class="h-24 w-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 relative">
-                    <!-- 이미지가 깨지지 않도록 원본 캐릭터를 완벽히 똑같이 본뜬 SVG 코드로 대체 -->
-                    <svg id="kimGeumGo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto object-contain drop-shadow-md">
-                        <!-- 그림자 -->
-                        <ellipse cx="60" cy="115" rx="25" ry="3" fill="rgba(0,0,0,0.1)"/>
-                        
-                        <!-- 왼쪽 팔 -->
-                        <path d="M 28 58 Q 12 45 8 50 Q 5 53 25 68 Z" fill="#4285F4"/>
-                        <!-- 오른쪽 팔 -->
-                        <path d="M 92 58 Q 108 45 112 50 Q 115 53 95 68 Z" fill="#4285F4"/>
-                        
-                        <!-- 왼쪽 다리 -->
-                        <path d="M 40 95 L 40 108 Q 40 113 32 112 Q 28 111 32 107 Q 35 106 35 103 L 36 95 Z" fill="#4285F4"/>
-                        <!-- 오른쪽 다리 -->
-                        <path d="M 80 95 L 80 108 Q 80 113 88 112 Q 92 111 88 107 Q 85 106 85 103 L 84 95 Z" fill="#4285F4"/>
-                        
-                        <!-- 몸통 (파란 네모) -->
-                        <rect x="25" y="25" width="70" height="70" rx="6" fill="#4285F4"/>
-                        
-                        <!-- 머리 위 구름모양 장식 -->
-                        <circle cx="60" cy="18" r="7" fill="#4285F4"/>
-                        <circle cx="53" cy="22" r="5" fill="#4285F4"/>
-                        <circle cx="67" cy="22" r="5" fill="#4285F4"/>
-                        <rect x="50" y="20" width="20" height="10" fill="#4285F4"/>
-                        
-                        <!-- 얼굴 (흰색 동그라미) -->
-                        <circle cx="60" cy="60" r="28" fill="#FFFFFF"/>
-                        
-                        <!-- 눈 -->
-                        <circle cx="48" cy="54" r="4.5" fill="#000000"/>
-                        <circle cx="49" cy="52.5" r="1.5" fill="#FFFFFF"/>
-                        
-                        <circle cx="72" cy="54" r="4.5" fill="#000000"/>
-                        <circle cx="73" cy="52.5" r="1.5" fill="#FFFFFF"/>
-                        
-                        <!-- 볼터치 (핑크색 그라데이션) -->
-                        <defs>
-                            <radialGradient id="blush" cx="50%" cy="50%" r="50%">
-                                <stop offset="0%" stop-color="#FF8CA3" stop-opacity="0.8"/>
-                                <stop offset="100%" stop-color="#FF8CA3" stop-opacity="0"/>
-                            </radialGradient>
-                        </defs>
-                        <circle cx="41" cy="61" r="5" fill="url(#blush)"/>
-                        <circle cx="79" cy="61" r="5" fill="url(#blush)"/>
-                        
-                        <!-- 입 -->
-                        <path d="M 54 61 Q 60 64 66 61 Q 65 71 60 71 Q 55 71 54 61 Z" fill="#000000"/>
-                    </svg>
+    <!-- Header / Hero Section -->
+    <header class="bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-700 text-white py-12 px-4 sm:px-6 lg:px-8 shadow-xl relative overflow-hidden">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-teal-400 text-slate-900 font-bold text-xs uppercase px-3 py-1 rounded-full mb-3 tracking-wider">
+                        원페이퍼 신상품 기획안
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+                        MG 상생 hope dream 대출
+                    </h1>
+                    <p class="mt-2 text-blue-100 text-base sm:text-lg max-w-2xl font-light">
+                        전통시장 상인 및 지역 소상공인을 위한 모바일 전용 대안신용평가(ACSS) 맞춤형 우대 대출
+                    </p>
                 </div>
-                <!-- 툴팁 (말풍선) -->
-                <div class="absolute -bottom-11 right-0 bg-primary-dark text-white text-xs font-bold px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap shadow-lg pointer-events-none">
-                    MG 든든 요정 김금고
-                    <!-- 툴팁 꼬리 -->
-                    <div class="absolute -top-1 right-6 w-3 h-3 bg-primary-dark transform rotate-45"></div>
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center min-w-[200px]">
+                    <div class="text-xs text-blue-200 uppercase font-semibold">최대 대출 한도 및 금리</div>
+                    <div class="text-2xl sm:text-3xl font-black text-amber-300 mt-1">최대 3,000만 원</div>
+                    <div class="text-sm font-medium text-teal-200">최저 연 3.8% ~ (우대 -1.5%p)</div>
                 </div>
             </div>
         </div>
+    </header>
 
-        <div class="p-6 md:p-10 flex flex-col md:flex-row gap-10">
-            <!-- 좌측 입력 폼 -->
-            <div class="w-full md:w-1/2 space-y-7">
-                
-                <!-- 1. 대출 금액 입력 -->
-                <div>
-                    <!-- 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                    <label class="block text-sm font-semibold text-primary-dark mb-2">대출 금액 (만원)</label>
-                    <div class="relative">
-                        <!-- 입력창 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <input type="text" id="loanAmount" class="block w-full pl-4 pr-14 py-3.5 bg-[#FAFAF7] border border-beige rounded-xl focus:ring-2 focus:ring-accent-blue focus:border-accent-blue focus:bg-white transition-all text-right text-lg font-semibold text-gray-800" placeholder="0" oninput="formatNumberInput(this); calculateLoan();">
-                        <!-- 단위 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <span class="absolute inset-y-0 right-4 flex items-center pl-2 text-gray-500 font-medium pointer-events-none">만원</span>
-                    </div>
-                    <!-- 금액 퀵 버튼 -->
-                    <div class="mt-3 flex gap-2">
-                        <!-- 버튼 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <button type="button" class="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium hover:bg-soft-blue hover:text-accent-blue hover:border-accent-blue transition-colors border border-beige shadow-sm" onclick="addAmount(100)">+100만</button>
-                        <button type="button" class="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium hover:bg-soft-blue hover:text-accent-blue hover:border-accent-blue transition-colors border border-beige shadow-sm" onclick="addAmount(500)">+500만</button>
-                        <button type="button" class="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium hover:bg-soft-blue hover:text-accent-blue hover:border-accent-blue transition-colors border border-beige shadow-sm" onclick="addAmount(1000)">+1000만</button>
-                        <button type="button" class="flex-1 py-2.5 bg-[#FAFAF7] text-gray-500 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors border border-beige shadow-sm" onclick="clearAmount()">초기화</button>
-                    </div>
-                </div>
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-10">
 
-                <!-- 2. 대출 기간 입력 -->
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <!-- 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <label class="block text-sm font-semibold text-primary-dark">대출 기간</label>
-                        <div class="flex items-center gap-2">
-                            <!-- 뱃지 폰트 클래스를 일반적인 크기로 되돌림 -->
-                            <span class="text-sm font-semibold text-accent-blue bg-soft-blue px-3 py-1 rounded-full" id="periodDisplay">12 개월</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 items-center">
-                        <!-- 셀렉트 박스 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <select id="periodType" class="block w-28 px-3 py-3.5 bg-[#FAFAF7] border border-beige rounded-xl focus:ring-2 focus:ring-accent-blue focus:border-accent-blue focus:bg-white text-gray-700 font-medium transition-all" onchange="updatePeriodLabel(); calculateLoan();">
-                            <option value="months">개월</option>
-                            <option value="years">년</option>
-                        </select>
-                        <!-- 입력창 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <input type="number" id="loanPeriod" class="block w-full px-4 py-3.5 bg-[#FAFAF7] border border-beige rounded-xl focus:ring-2 focus:ring-accent-blue focus:border-accent-blue focus:bg-white text-right font-semibold text-gray-800 transition-all text-lg" value="12" min="1" max="360" oninput="updatePeriodLabel(); calculateLoan();">
-                    </div>
-                    <div class="mt-5 px-1">
-                        <input type="range" id="periodSlider" min="1" max="120" value="12" class="w-full" oninput="syncPeriodFromSlider(); calculateLoan();">
-                    </div>
-                </div>
-
-                <!-- 3. 연 이자율 입력 -->
-                <div>
-                    <!-- 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                    <label class="block text-sm font-semibold text-primary-dark mb-2">연 이자율 (%)</label>
-                    <div class="relative">
-                        <!-- 입력창 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <input type="number" id="interestRate" step="0.1" class="block w-full pl-4 pr-10 py-3.5 bg-[#FAFAF7] border border-beige rounded-xl focus:ring-2 focus:ring-accent-blue focus:border-accent-blue focus:bg-white transition-all text-right text-lg font-semibold text-gray-800" value="5.0" min="0" max="24" oninput="calculateLoan()">
-                        <!-- 단위 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <span class="absolute inset-y-0 right-4 flex items-center pl-2 text-gray-500 font-medium pointer-events-none">%</span>
-                    </div>
-                </div>
-
-                <!-- 4. 상환 방식 선택 -->
-                <div>
-                    <!-- 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                    <label class="block text-sm font-semibold text-primary-dark mb-3">상환 방식</label>
-                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="repaymentType" value="equalPrincipalAndInterest" class="peer sr-only" checked onchange="calculateLoan()">
-                            <div class="rounded-xl border border-beige bg-white px-3 py-3.5 hover:bg-gray-50 peer-checked:border-accent-blue peer-checked:bg-soft-blue peer-checked:ring-1 peer-checked:ring-accent-blue text-center transition-all shadow-sm peer-checked:shadow-none">
-                                <!-- 버튼 텍스트 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-sm font-bold text-gray-600 peer-checked:text-accent-blue">원리금균등</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="repaymentType" value="equalPrincipal" class="peer sr-only" onchange="calculateLoan()">
-                            <div class="rounded-xl border border-beige bg-white px-3 py-3.5 hover:bg-gray-50 peer-checked:border-accent-blue peer-checked:bg-soft-blue peer-checked:ring-1 peer-checked:ring-accent-blue text-center transition-all shadow-sm peer-checked:shadow-none">
-                                <!-- 버튼 텍스트 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-sm font-bold text-gray-600 peer-checked:text-accent-blue">원금균등</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="repaymentType" value="bullet" class="peer sr-only" onchange="calculateLoan()">
-                            <div class="rounded-xl border border-beige bg-white px-3 py-3.5 hover:bg-gray-50 peer-checked:border-accent-blue peer-checked:bg-soft-blue peer-checked:ring-1 peer-checked:ring-accent-blue text-center transition-all shadow-sm peer-checked:shadow-none">
-                                <!-- 버튼 텍스트 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-sm font-bold text-gray-600 peer-checked:text-accent-blue">만기일시</span>
-                            </div>
-                        </label>
-                    </div>
-                    <!-- 설명 텍스트 폰트 클래스를 일반적인 크기로 되돌림 -->
-                    <p class="text-sm text-gray-500 mt-3 bg-[#FAFAF7] p-3.5 rounded-xl border border-beige font-medium" id="repaymentDescription">매월 동일한 원금과 이자의 합계를 상환하는 방식입니다.</p>
-                </div>
-                
-                <!-- 제출 버튼 폰트 클래스를 일반적인 크기로 되돌림 -->
-                <button onclick="calculateLoan()" class="w-full bg-accent-blue text-white py-4 rounded-xl font-bold hover:bg-[#527993] transition-colors shadow-[0_8px_20px_rgba(98,140,166,0.3)] text-lg mt-4">
-                    계산 결과 확인하기
-                </button>
+        <!-- Executive Key Indicators Banner -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-blue-600">
+                <div class="text-xs text-slate-500 font-semibold uppercase">목표 신규 고객</div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mt-2">30,000 명</div>
+                <div class="text-xs text-blue-600 font-medium mt-1">📱 모바일 자영업자 타깃</div>
             </div>
-
-            <!-- 우측 결과 뷰 -->
-            <div class="w-full md:w-1/2 flex flex-col h-full pt-6 md:pt-0">
-                
-                <!-- 결과 요약 카드 -->
-                <div class="bg-white rounded-2xl p-6 md:p-8 border border-beige mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1.5 h-full bg-accent-blue"></div>
-                    <!-- 제목 폰트 클래스를 일반적인 크기로 되돌림 -->
-                    <h3 class="text-lg font-bold text-primary-dark pb-2 mb-5">계산 결과 요약</h3>
-                    
-                    <div class="space-y-4 relative z-10">
-                        <div class="flex justify-between items-center bg-[#FAFAF7] p-4 rounded-xl border border-beige">
-                            <!-- 요약 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                            <span class="text-sm text-gray-600 font-semibold">1회차 월 상환액</span>
-                            <div class="text-right">
-                                <!-- 금액 결과 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-2xl font-bold text-accent-blue" id="firstInstallment">0</span>
-                                <span class="text-sm text-gray-600 font-bold ml-1">원</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-between items-center px-2 pt-2">
-                            <span class="text-sm text-gray-500 font-medium">총 대출 이자</span>
-                            <div class="text-right">
-                                <!-- 금액 결과 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-lg font-bold text-gray-700" id="totalInterest">0</span>
-                                <span class="text-sm text-gray-500 ml-1">원</span>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center px-2 border-t border-beige pt-4 mt-2">
-                            <!-- 요약 라벨 폰트 클래스를 일반적인 크기로 되돌림 -->
-                            <span class="text-base text-primary-dark font-bold">총 상환 금액 (원금+이자)</span>
-                            <div class="text-right">
-                                <!-- 금액 결과 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                <span class="text-xl font-bold text-primary-dark" id="totalPayment">0</span>
-                                <span class="text-sm text-gray-600 font-bold ml-1">원</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-teal-500">
+                <div class="text-xs text-slate-500 font-semibold uppercase">최대 우대금리</div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mt-2">-1.5 %p</div>
+                <div class="text-xs text-teal-600 font-medium mt-1">🏷️ 상인회 및 거래 실적 연계</div>
+            </div>
+            <!-- Highlighted 1-Minute Loan Approval Card -->
+            <div class="bg-amber-400 p-5 rounded-2xl shadow-xl border-4 border-yellow-300 ring-4 ring-amber-400/30 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+                <span class="absolute top-2 right-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full animate-bounce shadow">
+                    초스피드 ⚡
+                </span>
+                <div class="text-xs text-slate-900 font-extrabold uppercase tracking-wide">대출 신청 소요시간</div>
+                <div class="text-3xl sm:text-4xl font-black text-slate-900 mt-1 drop-shadow-sm">단 1 분</div>
+                <div class="text-xs text-rose-700 font-extrabold mt-1 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-md inline-block">
+                    ⚡ 초고속 무서류 자동 스크래핑
                 </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-amber-500">
+                <div class="text-xs text-slate-500 font-semibold uppercase">목표 부실률 관리</div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mt-2">1.2 % 이하</div>
+                <div class="text-xs text-amber-600 font-medium mt-1">🛡️ 매출 연계 자동 분할상환</div>
+            </div>
+        </section>
 
-                <!-- 회차별 상환 스케줄러 (테이블) -->
-                <div class="flex-grow flex flex-col bg-white rounded-2xl border border-beige shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-                    <div class="p-4 md:p-5 border-b border-beige bg-[#FAFAF7]">
-                        <!-- 테이블 제목 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <h3 class="text-sm font-bold text-primary-dark">월별 상환 스케줄</h3>
-                    </div>
-                    <div class="table-container flex-grow bg-white">
-                        <!-- 테이블 내용 폰트 클래스를 일반적인 크기로 되돌림 -->
-                        <table class="min-w-full divide-y divide-beige text-sm">
-                            <thead class="bg-[#FAFAF7] sticky top-0 z-10 shadow-sm">
-                                <tr>
-                                    <!-- 테이블 헤더 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                    <th scope="col" class="px-3 py-4 text-center font-bold text-primary-dark whitespace-nowrap">회차</th>
-                                    <th scope="col" class="px-3 py-4 text-right font-bold text-primary-dark whitespace-nowrap">상환 원금</th>
-                                    <th scope="col" class="px-3 py-4 text-right font-bold text-primary-dark whitespace-nowrap">이자</th>
-                                    <th scope="col" class="px-3 py-4 text-right font-bold text-primary-dark whitespace-nowrap">월 납입금</th>
-                                    <th scope="col" class="px-3 py-4 text-right font-bold text-primary-dark whitespace-nowrap">대출 잔액</th>
+        <!-- Section 1: Background & Need (Why) -->
+        <section class="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-slate-100">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-3 mb-4">
+                1. 추진 배경 및 필요성 (Why)
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-sm sm:text-base mb-6">
+                전통시장 및 골목상권 영세 상인들은 현금 및 단기 정산 위주의 영업 특성상 국세청 공식 소득 증빙이 어려워 기존 금융권 대출에서 소외되어 왔습니다. 고금리·고물가 부담이 가중되는 상황에서 새마을금고는 독자적인 대안신용평가(ACSS) 모델을 통해 지역 포용금융을 강화하고 모바일 경쟁력을 확보하고자 합니다.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <div class="text-2xl mb-2">🏛️</div>
+                    <h3 class="font-bold text-slate-800 text-base mb-2">지역 포용금융 실천</h3>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        전통시장 상인 및 영세 소상공인의 실질적 금융비용을 경감하여 고금리 대환 및 안정적 경영자금 공급.
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <div class="text-2xl mb-2">🧾</div>
+                    <h3 class="font-bold text-slate-800 text-base mb-2">소득 증빙 한계 극복</h3>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        카드 매출 정산 내역 및 상인회 활동 데이터 등 대안 데이터를 활용해 재무제표 부재 리스크를 보완.
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <div class="text-2xl mb-2">📲</div>
+                    <h3 class="font-bold text-slate-800 text-base mb-2">디지털 경쟁력 확충</h3>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        인터넷전문은행의 자영업자 대출 확대에 대응하여 고령층 상인도 쉽게 쓰는 간편 모바일 UX 구축.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Core Specifications & Interest Rates (What) -->
+        <section class="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-slate-100">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-3 mb-4">
+                2. 상품 핵심 개요 및 금리 체계 (What)
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-sm sm:text-base mb-6">
+                'MG 상생 hope dream 대출'은 사업자등록 6개월 이상 소상공인을 대상으로 최저 연 3.8%대 금리를 제공합니다. 상인회 추천, 카드 정산계좌 지정 등 4가지 실질 우대 조건으로 최대 -1.5%p 금리 감면 혜택을 제공합니다.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- Specification Table -->
+                <div class="space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <tbody>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 px-3 bg-slate-50 font-bold text-slate-700 w-28">상품명</th>
+                                    <td class="py-3 px-3 font-semibold text-blue-900">MG 상생 희망드림 대출 (모바일 전용)</td>
                                 </tr>
-                            </thead>
-                            <tbody id="scheduleBody" class="bg-white divide-y divide-gray-100">
-                                <!-- JavaScript로 테이블 로우 동적 생성 -->
-                                <tr>
-                                    <td colspan="5" class="px-6 py-16 text-center text-gray-400 bg-white">
-                                        <div class="flex flex-col items-center justify-center space-y-3">
-                                            <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            <!-- 빈 테이블 메세지 폰트 클래스를 일반적인 크기로 되돌림 -->
-                                            <span class="font-medium text-sm">대출 조건을 입력하면 스케줄이 계산됩니다.</span>
-                                        </div>
-                                    </td>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 px-3 bg-slate-50 font-bold text-slate-700">대출 대상</th>
+                                    <td class="py-3 px-3 text-slate-700">사업자등록 6개월 이상 전통시장 상인회 등록 상인 및 지역 소상공인</td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 px-3 bg-slate-50 font-bold text-slate-700">한도 / 금리</th>
+                                    <td class="py-3 px-3 text-slate-700">최대 3,000만 원 / 최저 연 3.8% ~ (우대금리 최대 1.5%p 적용 시)</td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 px-3 bg-slate-50 font-bold text-slate-700">기간 / 상환</th>
+                                    <td class="py-3 px-3 text-slate-700">1년 (최대 5년 연장) / 원리금균등 또는 <b>일/주 단위 매출 연계 자동 분할상환</b></td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 px-3 bg-slate-50 font-bold text-slate-700">신청 채널</th>
+                                    <td class="py-3 px-3 text-slate-700">MG모바일 뱅킹 앱 (태블릿 기반 'O2O MG매니저' 현장 지원 병행)</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <!-- 하단 안내 문구 폰트 클래스를 일반적인 크기로 되돌림 -->
-                <p class="text-xs text-gray-400 mt-4 text-right pr-2 font-medium">* 본 결과는 단순 참고용으로 실제 금융기관 계산과 차이가 있을 수 있습니다.</p>
+
+                <!-- Chart 1: Horizontal Bar Chart -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-700 text-center mb-1">
+                        주요 우대금리 항목별 할인 폭 (최대 -1.5%p)
+                    </h3>
+                    <p class="text-xs text-slate-500 text-center mb-3">항목 중복 적용 가능</p>
+                    <div class="chart-container">
+                        <canvas id="rateChart"></canvas>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
 
+        <!-- Section 3: 3E Strategy & ACSS Breakdown (How) -->
+        <section class="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-slate-100">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-3 mb-4">
+                3. 핵심 차별화 전략: 3E Strategy (How)
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-sm sm:text-base mb-6">
+                사용자 편의성(Easy), 대안신용평가(Easy-Assessment), 지역 생태계 연계(Eco-system)를 아우르는 3E 전략을 적용하여 기존 시중은행 및 인터넷은행 대출 상품과의 차별화를 도모합니다.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Card 1 -->
+            <div class="p-5 rounded-xl border-2 border-blue-100 bg-blue-50/50">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="bg-blue-600 text-white font-black text-xs px-2 py-1 rounded">1. Easy</span>
+                    <h3 class="font-bold text-blue-900 text-lg">쉬운 모바일 UX</h3>
+                </div>
+                <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                    <li class="flex items-start gap-1.5">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span><b>상생 쉬운모드:</b> 고령 상인 맞춤형 대형 글씨 및 음성 가이드(TTS) 제공</span>
+                    </li>
+                    <li class="flex items-start gap-1.5">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span><b>1분 스크래핑:</b> 공공마이데이터 연동으로 무서류 초간편 신청</span>
+                    </li>
+                </ul>
+            </div>
+                    <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span><b>상생 쉬운모드:</b> 고령 상인 맞춤형 대형 글씨 및 음성 가이드(TTS) 제공</span>
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span><b>3분 스크래핑:</b> 공공마이데이터 연동으로 무서류 간편 신청</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-5 rounded-xl border-2 border-teal-100 bg-teal-50/50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-teal-600 text-white font-black text-xs px-2 py-1 rounded">2. Easy-Assessment</span>
+                        <h3 class="font-bold text-teal-900 text-lg">대안신용평가</h3>
+                    </div>
+                    <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-teal-600 font-bold">•</span>
+                            <span><b>매출 데이터 분석:</b> POS 및 카드 정산 실시간 주기 분석</span>
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-teal-600 font-bold">•</span>
+                            <span><b>지역 정성 평가:</b> 전통시장 입점 기간 및 상인회 활동 반영</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-5 rounded-xl border-2 border-amber-100 bg-amber-50/50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-amber-600 text-white font-black text-xs px-2 py-1 rounded">3. Eco-system</span>
+                        <h3 class="font-bold text-amber-900 text-lg">지역 상생 생태계</h3>
+                    </div>
+                    <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-amber-600 font-bold">•</span>
+                            <span><b>이차보전 연계:</b> 지자체 소상공인 이자 지원 사업 결합 가능</span>
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-amber-600 font-bold">•</span>
+                            <span><b>경영 무료 컨설팅:</b> 세무, 노무, 마케팅 지원 프로그램 결합</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Chart 2: ACSS Donut Chart Breakdown -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2">
+                            새마을금고 특화 대안신용평가(ACSS) 비중
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                            기존 금융권이 국세청 재무제표 위주(80% 이상)로 심사했던 것과 달리, 카드/POS 매출 정산 데이터(35%)와 전통시장 입점 및 상인회 활동 평가(25%) 등 비재무 실질 데이터를 총 80% 비중으로 반영합니다.
+                        </p>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="flex items-center justify-between bg-white p-2 rounded border border-slate-200">
+                                <span>💳 POS·카드 매출 정산 데이터</span>
+                                <span class="font-bold text-blue-600">35%</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-white p-2 rounded border border-slate-200">
+                                <span>🏪 전통시장 입점 및 상인회 활동</span>
+                                <span class="font-bold text-teal-600">25%</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-white p-2 rounded border border-slate-200">
+                                <span>🏦 새마을금고 거래 기여도</span>
+                                <span class="font-bold text-amber-600">20%</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-white p-2 rounded border border-slate-200">
+                                <span>📄 전통 재무 및 공공 마이데이터</span>
+                                <span class="font-bold text-slate-500">20%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            <canvas id="acssChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Non-face-to-face Flow & Risk Management (Safety & Flow) -->
+        <section class="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-slate-100">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-3 mb-4">
+                4. 비대면 프로세스 및 리스크 관리 (Safety & Flow)
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-sm sm:text-base mb-6">
+                3단계 비대면 모바일 프로세스로 대출 실행 시간을 <b>단 1분 내</b>로 단축하는 한편, 카드 매출 정산금 일/주 단위 자동 상환 및 조기경보시스템(EWS)을 구축하여 대출 부실 가능성을 사전에 차단합니다.
+            </p>
+
+            <!-- HTML/Tailwind Diagram Process -->
+            <div class="mb-8">
+                <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">3단계 비대면 간편 대출 프로세스 (총 1분 소요)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-900 text-white p-5 rounded-xl relative">
+                        <div class="text-xs text-blue-300 font-bold mb-1">STEP 01</div>
+                        <div class="text-lg font-bold mb-2">간편 본인 인증</div>
+                        <p class="text-xs text-blue-100">PASS 인증서 또는 금융인증서를 통한 원터치 본인 확인</p>
+                        <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-2xl text-blue-600 z-10">➔</div>
+                    </div>
+                    <div class="bg-indigo-800 text-white p-5 rounded-xl relative">
+                        <div class="text-xs text-indigo-300 font-bold mb-1">STEP 02</div>
+                        <div class="text-lg font-bold mb-2">자동 서류 스크래핑</div>
+                        <p class="text-xs text-indigo-100">국세청, 건보, 카드사 매출 정산 데이터 1초 만에 자동 수집</p>
+                        <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-2xl text-indigo-600 z-10">➔</div>
+                    </div>
+                    <div class="bg-teal-700 text-white p-5 rounded-xl">
+                        <div class="text-xs text-teal-300 font-bold mb-1">STEP 03</div>
+                        <div class="text-lg font-bold mb-2">ACSS 심사 및 승인</div>
+                        <p class="text-xs text-teal-100">대안신용평가 자동 심사 후 한도·금리 산정, 즉시 입금</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Management Features -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-5 bg-rose-50 rounded-xl border border-rose-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xl">🔄</span>
+                        <h3 class="font-bold text-rose-900 text-base">매출 연계 자동 상환 (Daily Cash-flow Sync)</h3>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                        카드 정산 대금 발생 시 소상공인이 설정한 일정한 비율(예: 정산금의 5%)이 일/주 단위로 대출 원리금으로 자동 분할 상환되어, 만기 시 일시상환 부담을 대폭 감소시킵니다.
+                    </p>
+                </div>
+                <div class="p-5 bg-amber-50 rounded-xl border border-amber-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xl">🚨</span>
+                        <h3 class="font-bold text-amber-900 text-base">조기 경보 시스템 (EWS) 및 컨설팅 연계</h3>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                        카드 매출이 3개월 연속 30% 이상 급감 시 위험 모니터링 알림이 발동되며, 새마을금고 무료 경영/세무 컨설팅 프로그램 및 지자체 이차보전 자금으로 자동 연결됩니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Target Outcomes & Timeline (Outcome & Timeline) -->
+        <section class="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-slate-100">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-3 mb-4">
+                5. 기대 효과 및 실행 로드맵 (Outcome & Timeline)
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-sm sm:text-base mb-6">
+                본 대출 상품 출시를 통해 신규 모바일 소상공인 고객 3만 명을 유치하고 연체율을 1.2% 이하로 철저히 관리할 계획입니다. 총 4개월간의 시스템 개발 및 협약을 거쳐 전국 출시할 예정입니다.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-8">
+                <!-- Chart 3: Target Delinquency Rate Comparison -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-800 text-center mb-1">
+                        목표 부실률 비교 (업권 평균 대비)
+                    </h3>
+                    <p class="text-xs text-slate-500 text-center mb-3">정산 연계 상환을 통한 건전성 확보</p>
+                    <div class="chart-container">
+                        <canvas id="kpiChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Timeline Roadmap -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">추진 일정 (총 4개월 소요)</h3>
+                    <div class="relative border-l-2 border-blue-500 ml-4 pl-6 space-y-6">
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-4 h-4 bg-blue-600 rounded-full border-4 border-white"></span>
+                            <div class="text-xs font-bold text-blue-600">1 ~ 2 개월차</div>
+                            <h4 class="text-base font-bold text-slate-800">시스템 개발 및 ACSS 모델 구축</h4>
+                            <p class="text-xs text-slate-600 mt-1">
+                                모바일 전용 UX '상생 쉬운모드' UI/UX 개발, POS/카드사 데이터 연동 핀테크 스크래핑 엔진 구축
+                            </p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-4 h-4 bg-teal-500 rounded-full border-4 border-white"></span>
+                            <div class="text-xs font-bold text-teal-600">3 개월차</div>
+                            <h4 class="text-base font-bold text-slate-800">베타 테스트 및 상인회 협약</h4>
+                            <p class="text-xs text-slate-600 mt-1">
+                                주요 거점 전통시장 상인회 대상 O2O 매니저 현장 테스트, 지자체 이차보전 연계 MOU 체결
+                            </p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-4 h-4 bg-amber-500 rounded-full border-4 border-white"></span>
+                            <div class="text-xs font-bold text-amber-600">4 개월차</div>
+                            <h4 class="text-base font-bold text-slate-800">전국 공식 출시 및 마케팅</h4>
+                            <p class="text-xs text-slate-600 mt-1">
+                                MG모바일 뱅킹 앱 정식 오픈, 전국 새마을금고 이자 지원 사업 마케팅 대대적 개시
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 text-center text-xs text-slate-400">
+        <p>© 2026 새마을금고중앙회 (KFCC) - 모바일 전용 소상공인 우대 대출 기획안 인포그래픽 SPA</p>
+    </footer>
+
+    <!-- Chart Script Initialization -->
     <script>
-        // 숫자에 콤마(,) 추가
-        const formatCurrency = (num) => {
-            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        };
-
-        // 입력 필드 숫자 포맷팅 (만원 단위)
-        function formatNumberInput(input) {
-            let value = input.value.replace(/[^0-9]/g, '');
-            if (value === '') {
-                input.value = '';
-                return;
-            }
-            // 콤마 추가하여 다시 설정
-            input.value = Number(value).toLocaleString('ko-KR');
-        }
-
-        // 금액 퀵 버튼 기능 (입력값은 만원 단위)
-        function addAmount(amountInManwon) {
-            const input = document.getElementById('loanAmount');
-            let currentValue = Number(input.value.replace(/,/g, '')) || 0;
-            currentValue += amountInManwon;
-            input.value = currentValue.toLocaleString('ko-KR');
-            calculateLoan();
-        }
-
-        // 금액 초기화
-        function clearAmount() {
-            document.getElementById('loanAmount').value = '';
-            calculateLoan();
-        }
-
-        // 대출 기간 레이블 및 슬라이더 동기화
-        function updatePeriodLabel() {
-            const type = document.getElementById('periodType').value;
-            const input = document.getElementById('loanPeriod');
-            const display = document.getElementById('periodDisplay');
-            const slider = document.getElementById('periodSlider');
+        document.addEventListener('DOMContentLoaded', function() {
             
-            let val = parseInt(input.value) || 0;
-            
-            if (type === 'years') {
-                display.innerText = `${val} 년 (${val * 12} 개월)`;
-                slider.max = 30; // 최대 30년
-            } else {
-                display.innerText = `${val} 개월`;
-                slider.max = 360; // 최대 360개월
-            }
-            slider.value = val;
-        }
+            // Chart.js Global Font Setting
+            Chart.defaults.font.family = "'Nanum Pen Script', cursive, sans-serif";
+            Chart.defaults.font.size = 18;
 
-        // 슬라이더에서 인풋으로 동기화
-        function syncPeriodFromSlider() {
-            const type = document.getElementById('periodType').value;
-            const input = document.getElementById('loanPeriod');
-            const slider = document.getElementById('periodSlider');
-            
-            input.value = slider.value;
-            updatePeriodLabel();
-        }
+            // Label Wrapping Helper Logic (Ensures strings over 16 chars split into arrays)
+            function wrapLabel(label) {
+                if (typeof label !== 'string') return label;
+                if (label.length <= 16) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
 
-        // 상환 방식 설명 업데이트
-        function updateRepaymentDescription(type) {
-            const desc = document.getElementById('repaymentDescription');
-            switch (type) {
-                case 'equalPrincipalAndInterest':
-                    desc.innerText = '매월 동일한 금액(원금+이자)을 상환하는 방식입니다. (자금 계획이 용이)';
-                    break;
-                case 'equalPrincipal':
-                    desc.innerText = '매월 동일한 원금을 상환하고, 이자는 잔액에 따라 줄어드는 방식입니다. (총 이자가 가장 적음)';
-                    break;
-                case 'bullet':
-                    desc.innerText = '대출 기간 동안 이자만 납부하고, 만기에 원금을 일시 상환하는 방식입니다. (초기 부담 적음)';
-                    break;
-            }
-        }
-
-        // 핵심 대출 계산 로직
-        function calculateLoan() {
-            // 1. 입력값 가져오기
-            const loanAmountInput = document.getElementById('loanAmount').value.replace(/,/g, '');
-            const principal = Number(loanAmountInput) * 10000; // 만원 -> 원 단위 변환
-
-            const periodVal = parseInt(document.getElementById('loanPeriod').value) || 0;
-            const periodType = document.getElementById('periodType').value;
-            const totalMonths = periodType === 'years' ? periodVal * 12 : periodVal;
-
-            const annualRate = parseFloat(document.getElementById('interestRate').value) || 0;
-            const monthlyRate = (annualRate / 100) / 12; // 월 이자율
-
-            const repaymentType = document.querySelector('input[name="repaymentType"]:checked').value;
-            updateRepaymentDescription(repaymentType);
-
-            // 유효성 검사
-            const tbody = document.getElementById('scheduleBody');
-            if (principal <= 0 || totalMonths <= 0 || annualRate <= 0) {
-                document.getElementById('firstInstallment').innerText = '0';
-                document.getElementById('totalInterest').innerText = '0';
-                document.getElementById('totalPayment').innerText = '0';
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-400">올바른 대출 조건을 입력해주세요.</td></tr>';
-                return;
-            }
-
-            // 2. 상환 스케줄 계산
-            let schedule = [];
-            let remainingPrincipal = principal;
-            let totalInterestPaid = 0;
-            let firstMonthPayment = 0;
-
-            if (repaymentType === 'equalPrincipalAndInterest') {
-                /* 원리금 균등 분할 상환: 월 납입금 = 원금 * (월이자율 * (1+월이자율)^총개월수) / ((1+월이자율)^총개월수 - 1) */
-                // 이자율이 0일 경우 예외 처리
-                let monthlyPayment = 0;
-                if(annualRate === 0) {
-                     monthlyPayment = principal / totalMonths;
-                } else {
-                     const mathPow = Math.pow(1 + monthlyRate, totalMonths);
-                     monthlyPayment = principal * (monthlyRate * mathPow) / (mathPow - 1);
-                }
-                
-                for (let i = 1; i <= totalMonths; i++) {
-                    let interest = remainingPrincipal * monthlyRate;
-                    let principalPayment = monthlyPayment - interest;
-                    
-                    // 마지막 달 단수 차이 조정
-                    if (i === totalMonths) {
-                        principalPayment = remainingPrincipal;
-                        monthlyPayment = principalPayment + interest;
-                        remainingPrincipal = 0;
+                words.forEach(word => {
+                    if ((currentLine + ' ' + word).trim().length > 16) {
+                        if (currentLine) lines.push(currentLine.trim());
+                        currentLine = word;
                     } else {
-                        remainingPrincipal -= principalPayment;
+                        currentLine = currentLine ? currentLine + ' ' + word : word;
                     }
-
-                    totalInterestPaid += interest;
-                    schedule.push({
-                        month: i,
-                        principalPayment: principalPayment,
-                        interest: interest,
-                        monthlyPayment: monthlyPayment,
-                        balance: Math.max(0, remainingPrincipal) // 마이너스 방지
-                    });
-                }
-                firstMonthPayment = schedule[0].monthlyPayment;
-
-            } else if (repaymentType === 'equalPrincipal') {
-                /* 원금 균등 분할 상환: 매월 동일한 원금 + 남은 원금에 대한 이자 */
-                let fixedPrincipalPayment = principal / totalMonths;
-
-                for (let i = 1; i <= totalMonths; i++) {
-                    let interest = remainingPrincipal * monthlyRate;
-                    let principalPayment = fixedPrincipalPayment;
-                    
-                    // 마지막 달 단수 차이 조정
-                    if (i === totalMonths) {
-                         principalPayment = remainingPrincipal;
-                    }
-                    
-                    let monthlyPayment = principalPayment + interest;
-                    remainingPrincipal -= principalPayment;
-                    
-                    totalInterestPaid += interest;
-                    schedule.push({
-                        month: i,
-                        principalPayment: principalPayment,
-                        interest: interest,
-                        monthlyPayment: monthlyPayment,
-                        balance: Math.max(0, remainingPrincipal)
-                    });
-                }
-                firstMonthPayment = schedule[0].monthlyPayment;
-
-            } else if (repaymentType === 'bullet') {
-                /* 만기 일시 상환: 매월 이자만 납부, 마지막 달에 원금+이자 일시 납부 */
-                let monthlyInterest = principal * monthlyRate;
-                
-                for (let i = 1; i <= totalMonths; i++) {
-                    let interest = monthlyInterest;
-                    let principalPayment = 0;
-                    
-                    if (i === totalMonths) {
-                        principalPayment = principal;
-                        remainingPrincipal = 0;
-                    }
-
-                    let monthlyPayment = principalPayment + interest;
-                    totalInterestPaid += interest;
-                    
-                    schedule.push({
-                        month: i,
-                        principalPayment: principalPayment,
-                        interest: interest,
-                        monthlyPayment: monthlyPayment,
-                        balance: remainingPrincipal
-                    });
-                }
-                firstMonthPayment = schedule[0].monthlyPayment;
+                });
+                if (currentLine) lines.push(currentLine.trim());
+                return lines;
             }
 
-            // 3. UI 업데이트
-            document.getElementById('firstInstallment').innerText = formatCurrency(firstMonthPayment);
-            document.getElementById('totalInterest').innerText = formatCurrency(totalInterestPaid);
-            document.getElementById('totalPayment').innerText = formatCurrency(principal + totalInterestPaid);
-
-            // 김금고 캐릭터 회전 애니메이션 실행 (연속 입력 시 애니메이션 끊김 방지)
-            const kimGeumGo = document.getElementById('kimGeumGo');
-            if (kimGeumGo) {
-                // 현재 회전 중이 아닐 때만 회전 클래스를 추가하여 끝까지 돌게 함
-                if (!kimGeumGo.classList.contains('spin-action')) {
-                    kimGeumGo.classList.add('spin-action');
-                    // 애니메이션 지속시간(0.6초)이 지난 후 클래스를 제거하여 다음 변경 시 다시 돌 수 있도록 준비
-                    setTimeout(() => {
-                        kimGeumGo.classList.remove('spin-action');
-                    }, 600);
+            // Shared Tooltip Callback Object (Mandatory Requirement)
+            const commonTooltipConfig = {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        if (Array.isArray(label)) {
+                            return label.join(' ');
+                        } else {
+                            return label;
+                        }
+                    }
                 }
-            }
+            };
 
-            // 테이블 렌더링
-            tbody.innerHTML = '';
-            let htmlStr = '';
-            schedule.forEach(row => {
-                htmlStr += `
-                    <tr class="hover:bg-soft-blue transition-colors group">
-                        <td class="px-3 py-3.5 text-center text-gray-500 font-medium group-hover:text-accent-blue transition-colors border-b border-gray-50">${row.month}</td>
-                        <td class="px-3 py-3.5 text-right text-gray-700 border-b border-gray-50">${formatCurrency(row.principalPayment)}</td>
-                        <td class="px-3 py-3.5 text-right text-gray-500 border-b border-gray-50">${formatCurrency(row.interest)}</td>
-                        <td class="px-3 py-3.5 text-right font-bold text-accent-blue border-b border-gray-50">${formatCurrency(row.monthlyPayment)}</td>
-                        <td class="px-3 py-3.5 text-right text-gray-400 border-b border-gray-50">${formatCurrency(row.balance)}</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = htmlStr;
-        }
-
-        // 초기화 시 한번 실행 및 이벤트 리스너 세팅
-        window.onload = () => {
-            // 초기 라디오 버튼 세팅 및 설명 업데이트용
-            const initialType = document.querySelector('input[name="repaymentType"]:checked').value;
-            updateRepaymentDescription(initialType);
+            // Chart 1: Preferential Rate Breakdown (Horizontal Bar Chart)
+            const ctxRate = document.getElementById('rateChart').getContext('2d');
+            const rawRateLabels = [
+                '전통시장 상인회 추천 및 확인 (-0.5%p)',
+                '카드 정산계좌 MG 지정 (-0.4%p)',
+                '제로페이 및 지역상품권 가맹 (-0.3%p)',
+                '공과금 자동이체 2건 등록 (-0.3%p)'
+            ];
             
-            // 라디오 버튼 이벤트 리스너 세팅
-            document.querySelectorAll('input[name="repaymentType"]').forEach(radio => {
-                radio.addEventListener('change', calculateLoan);
+            new Chart(ctxRate, {
+                type: 'bar',
+                data: {
+                    labels: rawRateLabels.map(wrapLabel),
+                    datasets: [{
+                        label: '금리 우대 폭 (%p)',
+                        data: [0.5, 0.4, 0.3, 0.3],
+                        backgroundColor: ['#0F52BA', '#00A896', '#F4A261', '#36B37E'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: commonTooltipConfig
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 0.6,
+                            ticks: {
+                                callback: function(value) { return '-' + value + '%p'; }
+                            }
+                        }
+                    }
+                }
             });
-        };
+
+            // Chart 2: ACSS Evaluation Factor Weights (Donut Chart)
+            const ctxAcss = document.getElementById('acssChart').getContext('2d');
+            const rawAcssLabels = [
+                'POS 및 카드 매출 정산 데이터 (35%)',
+                '전통시장 입점 및 상인회 활동 (25%)',
+                '새마을금고 기존 거래 기여도 (20%)',
+                '국세청 재무 및 공공 마이데이터 (20%)'
+            ];
+
+            new Chart(ctxAcss, {
+                type: 'doughnut',
+                data: {
+                    labels: rawAcssLabels.map(wrapLabel),
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: ['#0F52BA', '#00A896', '#F4A261', '#94A3B8'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 16 } }
+                        },
+                        tooltip: commonTooltipConfig
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Chart 3: KPI Target Delinquency Rate Comparison (Vertical Bar Chart)
+            const ctxKpi = document.getElementById('kpiChart').getContext('2d');
+            const rawKpiLabels = [
+                'MG 상생 희망드림 대출 목표 부실률',
+                '시중은행 자영업자 대출 평균 부실률',
+                '저축은행 및 여신업계 평균 부실률'
+            ];
+
+            new Chart(ctxKpi, {
+                type: 'bar',
+                data: {
+                    labels: rawKpiLabels.map(wrapLabel),
+                    datasets: [{
+                        label: '연체/부실률 (%)',
+                        data: [1.2, 1.8, 2.8],
+                        backgroundColor: ['#00A896', '#64748B', '#FF5964'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: commonTooltipConfig
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 3.5,
+                            ticks: {
+                                callback: function(value) { return value + '%'; }
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
     </script>
 </body>
 </html>
