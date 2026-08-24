@@ -140,7 +140,7 @@ with tab1:
             selected_member = st.selectbox("팀원 선택", default_members)
             new_member = st.text_input("새 팀원 이름 (위에서 '새 팀원 추가' 선택 시 입력)")
             
-            date_val = st.date_input("해당 일자 (연/월/일)", format="YYYY-MM-DD")
+            date_val = st.date_input("해당 일자")
             
             category = st.selectbox("예산 항목", ["수선유지비", "비품", "개량공사"])
             amount = st.number_input("사용 금액 (원)", min_value=0, step=1000, format="%d")
@@ -177,10 +177,6 @@ with tab1:
         else:
             # 화면 출력용 데이터 프레임 생성
             display_df = df[['date', 'member', 'category', 'amount', 'timestamp']].copy()
-            
-            # 연-월-일 형식으로 명확히 보이도록 포맷 변경
-            display_df['date'] = pd.to_datetime(display_df['date']).dt.strftime('%Y년 %m월 %d일')
-            
             # 타임스탬프 포맷팅 등 깔끔하게 정리
             display_df.columns = ['일자', '팀원', '항목', '사용 금액', '입력 시간']
             
@@ -247,26 +243,24 @@ with tab2:
             
         st.divider()
         
-        # 피벗 테이블 (일자별/항목별 크로스탭)
-        st.markdown("**📅 일자별/항목별 요약 테이블 (취합본)**")
+        # 피벗 테이블 (월별/항목별 크로스탭)
+        st.markdown("**📅 월별/항목별 요약 테이블 (취합본)**")
         
-        # '연 월 일'이 모두 보이도록 포맷팅된 컬럼 추가
-        df['full_date'] = pd.to_datetime(df['date']).dt.strftime('%Y년 %m월 %d일')
+        df['month'] = df['date'].astype(str).str[:7]
         
-        # 피벗테이블 생성 (월별 -> 일자별)
+        # 피벗테이블 생성
         pivot_df = pd.pivot_table(
             df, 
             values='amount', 
-            index='full_date', 
+            index='month', 
             columns='category', 
             aggfunc='sum', 
             fill_value=0
         )
         
-        # 합계 컬럼 추가 및 일자 역순 정렬
+        # 합계 컬럼 추가 및 월 역순 정렬
         pivot_df['총 합계'] = pivot_df.sum(axis=1)
         pivot_df = pivot_df.sort_index(ascending=False)
-        pivot_df.index.name = '일자'
         
         # Streamlit 화면에 표시 (숫자 포맷팅)
         styled_pivot = pivot_df.style.format("{:,.0f}").background_gradient(cmap='Blues', subset=['총 합계'])
