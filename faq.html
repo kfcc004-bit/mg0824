@@ -6,308 +6,325 @@
   <title>업무 FAQ 검색</title>
 
   <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --highlight: #fef08a;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 40px 20px;
-      background: #f5f7fa;
-      color: #222;
       font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        "Noto Sans KR",
-        Arial,
-        sans-serif;
+        "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    .container {
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
+    .app {
+      width: min(980px, calc(100% - 32px));
+      margin: 48px auto;
     }
 
-    h1 {
-      margin: 0 0 30px;
-      text-align: center;
-      font-size: 32px;
-    }
-
-    .search-area {
-      display: flex;
-      gap: 10px;
+    .header {
       margin-bottom: 24px;
     }
 
-    #searchInput {
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -0.04em;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .search-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-input {
       flex: 1;
-      height: 50px;
-      padding: 0 16px;
-      border: 1px solid #d5d9e0;
-      border-radius: 8px;
-      background: #fff;
+      min-width: 0;
+      height: 48px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 0 15px;
       font-size: 16px;
       outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    #searchInput:focus {
-      border-color: #356ae6;
-      box-shadow: 0 0 0 3px rgba(53, 106, 230, 0.12);
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
 
-    #showAllButton {
-      padding: 0 22px;
-      border: none;
-      border-radius: 8px;
-      background: #222;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 600;
+    button {
+      border: 0;
+      font: inherit;
       cursor: pointer;
     }
 
-    #showAllButton:hover {
-      background: #444;
-    }
-
-    .filter-section {
-      margin-bottom: 28px;
-    }
-
-    .filter-title {
-      margin-bottom: 10px;
-      font-size: 15px;
+    .reset-button {
+      height: 48px;
+      padding: 0 18px;
+      border-radius: 12px;
+      background: #111827;
+      color: #fff;
       font-weight: 700;
     }
 
-    .category-buttons {
+    .category-area {
+      margin-top: 18px;
+    }
+
+    .category-label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .category-list {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
     .category-button {
-      padding: 9px 15px;
-      border: 1px solid #d5d9e0;
-      border-radius: 20px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
       background: #fff;
-      color: #444;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .category-button:hover {
-      border-color: #356ae6;
-      color: #356ae6;
-    }
-
-    .category-button.active {
-      border-color: #356ae6;
-      background: #356ae6;
-      color: #fff;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .result-header h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    #resultCount {
-      color: #356ae6;
-      font-size: 14px;
+      color: #4b5563;
       font-weight: 700;
     }
 
-    .faq-list {
+    .category-button.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .result-toolbar {
+      margin: 28px 2px 12px;
+    }
+
+    .result-count {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .result-count strong {
+      color: var(--primary);
+    }
+
+    .result-list {
       display: grid;
       gap: 14px;
     }
 
     .faq-card {
-      padding: 22px;
-      border: 1px solid #e4e7ec;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.04);
     }
 
     .faq-category {
       display: inline-block;
-      margin-bottom: 12px;
-      padding: 5px 10px;
-      border-radius: 20px;
-      background: #eef3ff;
-      color: #356ae6;
+      margin-bottom: 10px;
+      padding: 5px 9px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: #4b5563;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .faq-question {
-      margin-bottom: 12px;
+      margin: 0 0 12px;
       font-size: 18px;
-      font-weight: 700;
-      line-height: 1.5;
-    }
-
-    .faq-question::before {
-      content: "Q. ";
-      color: #356ae6;
+      line-height: 1.55;
     }
 
     .faq-answer {
-      color: #555;
-      font-size: 15px;
+      margin: 0;
+      color: #4b5563;
       line-height: 1.7;
     }
 
-    .faq-answer::before {
-      content: "A. ";
-      color: #222;
-      font-weight: 700;
-    }
-
     mark {
-      padding: 1px 2px;
-      border-radius: 2px;
-      background: #fff19b;
+      padding: 0 2px;
+      border-radius: 3px;
+      background: var(--highlight);
       color: inherit;
     }
 
-    .empty-message {
-      padding: 50px 20px;
-      border: 1px dashed #ccd1d9;
-      border-radius: 12px;
-      background: #fff;
-      color: #777;
+    .empty {
+      padding: 48px 20px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      background: #ffffff;
+      color: var(--muted);
       text-align: center;
     }
 
-    @media (max-width: 600px) {
-      body {
-        padding: 25px 15px;
+    @media (max-width: 640px) {
+      .app {
+        width: calc(100% - 20px);
+        margin: 24px auto;
       }
 
-      h1 {
-        font-size: 26px;
-      }
-
-      .search-area {
+      .search-row {
         flex-direction: column;
       }
 
-      #showAllButton {
-        height: 46px;
+      .reset-button {
+        width: 100%;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="container">
-    <h1>업무 FAQ 검색</h1>
+  <main class="app">
 
-    <!-- 검색 영역 -->
-    <section class="search-area">
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="질문이나 키워드를 입력하세요."
-        aria-label="FAQ 검색"
-      />
-      <button id="showAllButton" type="button">전체보기</button>
-    </section>
+    <header class="header">
+      <h1>업무 FAQ 검색</h1>
+      <p>사내 FAQ에서 질문이나 키워드를 검색하세요.</p>
+    </header>
 
-    <!-- 분류 영역 -->
-    <section class="filter-section">
-      <div class="filter-title">분류</div>
+    <section class="search-panel">
 
-      <div class="category-buttons">
-        <button
-          type="button"
-          class="category-button active"
-          data-category="전체"
-        >
-          전체
-        </button>
+      <div class="search-row">
+        <input
+          id="searchInput"
+          class="search-input"
+          type="search"
+          placeholder="질문이나 키워드를 입력하세요."
+          autocomplete="off"
+        />
 
         <button
+          id="resetButton"
+          class="reset-button"
           type="button"
-          class="category-button"
-          data-category="추첨일시"
         >
-          추첨일시
-        </button>
-
-        <button
-          type="button"
-          class="category-button"
-          data-category="당첨자 발표"
-        >
-          당첨자 발표
-        </button>
-
-        <button
-          type="button"
-          class="category-button"
-          data-category="참여방법"
-        >
-          참여방법
+          전체보기
         </button>
       </div>
-    </section>
 
-    <!-- 검색 결과 -->
-    <section>
-      <div class="result-header">
-        <h2>검색 결과</h2>
-        <div id="resultCount"></div>
+      <div class="category-area">
+        <span class="category-label">분류</span>
+
+        <div id="categoryList" class="category-list">
+          <button class="category-button active"
+                  data-category="전체">전체</button>
+
+          <button class="category-button"
+                  data-category="교육">교육</button>
+
+          <button class="category-button"
+                  data-category="문서">문서</button>
+
+          <button class="category-button"
+                  data-category="IT">IT</button>
+
+          <button class="category-button"
+                  data-category="보안">보안</button>
+        </div>
       </div>
 
-      <div id="faqList" class="faq-list"></div>
     </section>
+
+    <div class="result-toolbar">
+      <div id="resultCount" class="result-count"></div>
+    </div>
+
+    <section id="resultList" class="result-list"></section>
+
   </main>
 
   <script>
-    // 제공된 FAQ 데이터만 사용합니다.
+    /*
+      첨부 JSON의 FAQ만 사용합니다.
+      answer_seed는 화면에서 answer로 그대로 표시합니다.
+    */
     const faqData = [
       {
-        category: "추첨일시",
-        question: "추첨은 언제 하나요?",
-        answer_seed: "추첨은 8/25 9시에 합니다."
+        category: "교육",
+        question: "교육 신청은 어디에서 하나요?",
+        answer: "교육 포털의 과정 검색 후 신청 메뉴를 사용합니다."
       },
       {
-        category: "당첨자 발표",
-        question: "당첨자 발표는 어떻게 하나요?",
-        answer_seed: "당첨자는 홈페이지 첫 화면에 게시할 예정입니다."
+        category: "교육",
+        question: "신청한 교육을 취소하려면 어떻게 하나요?",
+        answer: "신청내역에서 취소 가능 여부를 확인합니다."
       },
       {
-        category: "참여방법",
-        question: "추첨에 참여하려면 어떻게 하나요?",
-        answer_seed: "홈페이지 상단 참여방법 탭을 참고하여 주시기 바랍니다."
+        category: "문서",
+        question: "주간 업무보고에는 무엇을 넣어야 하나요?",
+        answer: "주요 실적, 이슈, 다음 주 계획을 중심으로 작성합니다."
+      },
+      {
+        category: "IT",
+        question: "사내 시스템 접속이 되지 않습니다.",
+        answer: "네트워크, 브라우저, 계정 상태를 순서대로 확인합니다."
+      },
+      {
+        category: "보안",
+        question: "ChatGPT에 내부 업무자료를 넣어도 되나요?",
+        answer: "교육에서는 합성자료를 사용하고, 실제 자료는 조직의 보안 및 AI 사용 기준을 먼저 확인합니다."
       }
     ];
 
-    const searchInput = document.getElementById("searchInput");
-    const faqList = document.getElementById("faqList");
-    const resultCount = document.getElementById("resultCount");
-    const showAllButton = document.getElementById("showAllButton");
-    const categoryButtons = document.querySelectorAll(".category-button");
+    const searchInput =
+      document.getElementById("searchInput");
+
+    const resetButton =
+      document.getElementById("resetButton");
+
+    const categoryList =
+      document.getElementById("categoryList");
+
+    const resultCount =
+      document.getElementById("resultCount");
+
+    const resultList =
+      document.getElementById("resultList");
 
     let selectedCategory = "전체";
 
-    // HTML 특수문자를 안전하게 변환
-    function escapeHTML(text) {
-      return String(text)
+
+    // HTML 특수문자 처리
+    function escapeHtml(value) {
+      return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -315,122 +332,168 @@
         .replaceAll("'", "&#039;");
     }
 
+
     // 정규식 특수문자 처리
-    function escapeRegExp(text) {
-      return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    function escapeRegExp(value) {
+      return value.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
     }
 
-    // 검색어 강조
-    function highlightText(text, keyword) {
-      const safeText = escapeHTML(text);
 
-      if (!keyword.trim()) {
+    // 검색어 강조
+    function highlight(text, keyword) {
+
+      const safeText = escapeHtml(text);
+      const searchKeyword = keyword.trim();
+
+      if (!searchKeyword) {
         return safeText;
       }
 
-      const safeKeyword = escapeRegExp(escapeHTML(keyword.trim()));
-      const regex = new RegExp(`(${safeKeyword})`, "gi");
+      const pattern = new RegExp(
+        `(${escapeRegExp(searchKeyword)})`,
+        "gi"
+      );
 
-      return safeText.replace(regex, "<mark>$1</mark>");
+      return safeText.replace(
+        pattern,
+        "<mark>$1</mark>"
+      );
     }
 
-    // FAQ 검색 및 필터링
-    function getFilteredFaqs() {
-      const keyword = searchInput.value.trim().toLowerCase();
 
-      return faqData.filter((faq) => {
+    // 검색 및 분류 필터
+    function getFilteredFaqs() {
+
+      const keyword =
+        searchInput.value.trim().toLowerCase();
+
+      return faqData.filter((item) => {
+
         const matchesCategory =
           selectedCategory === "전체" ||
-          faq.category === selectedCategory;
+          item.category === selectedCategory;
 
-        const searchableText = [
-          faq.question,
-          faq.answer_seed,
-          faq.category
-        ]
-          .join(" ")
-          .toLowerCase();
+        const searchableText =
+          `${item.question} ${item.answer} ${item.category}`
+            .toLowerCase();
 
         const matchesKeyword =
-          keyword === "" || searchableText.includes(keyword);
+          keyword === "" ||
+          searchableText.includes(keyword);
 
         return matchesCategory && matchesKeyword;
       });
     }
 
-    // 화면 출력
-    function renderFaqs() {
-      const filteredFaqs = getFilteredFaqs();
-      const keyword = searchInput.value.trim();
 
-      resultCount.textContent = `${filteredFaqs.length}건`;
+    // 검색 결과 화면 출력
+    function render() {
+
+      const keyword = searchInput.value.trim();
+      const filteredFaqs = getFilteredFaqs();
+
+      resultCount.innerHTML =
+        `검색 결과 <strong>${filteredFaqs.length}</strong>건`;
 
       if (filteredFaqs.length === 0) {
-        faqList.innerHTML = `
-          <div class="empty-message">
-            검색 결과가 없습니다.
+
+        resultList.innerHTML = `
+          <div class="empty">
+            검색 조건에 맞는 FAQ가 없습니다.
           </div>
         `;
+
         return;
       }
 
-      faqList.innerHTML = filteredFaqs
-        .map((faq) => {
-          return `
-            <article class="faq-card">
-              <div class="faq-category">
-                ${highlightText(faq.category, keyword)}
-              </div>
+      resultList.innerHTML =
+        filteredFaqs.map((item) => `
+          <article class="faq-card">
 
-              <div class="faq-question">
-                ${highlightText(faq.question, keyword)}
-              </div>
+            <span class="faq-category">
+              ${highlight(item.category, keyword)}
+            </span>
 
-              <div class="faq-answer">
-                ${highlightText(faq.answer_seed, keyword)}
-              </div>
-            </article>
-          `;
-        })
-        .join("");
+            <h2 class="faq-question">
+              ${highlight(item.question, keyword)}
+            </h2>
+
+            <p class="faq-answer">
+              ${highlight(item.answer, keyword)}
+            </p>
+
+          </article>
+        `).join("");
     }
 
-    // 키워드 검색
-    searchInput.addEventListener("input", renderFaqs);
 
-    // 카테고리 필터
-    categoryButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        selectedCategory = button.dataset.category;
+    // 키워드 입력
+    searchInput.addEventListener(
+      "input",
+      render
+    );
 
-        categoryButtons.forEach((item) => {
-          item.classList.remove("active");
-        });
 
-        button.classList.add("active");
+    // 카테고리 선택
+    categoryList.addEventListener(
+      "click",
+      (event) => {
 
-        renderFaqs();
-      });
-    });
+        const button =
+          event.target.closest(".category-button");
+
+        if (!button) return;
+
+        selectedCategory =
+          button.dataset.category;
+
+        document
+          .querySelectorAll(".category-button")
+          .forEach((item) => {
+
+            item.classList.toggle(
+              "active",
+              item === button
+            );
+
+          });
+
+        render();
+      }
+    );
+
 
     // 전체보기
-    showAllButton.addEventListener("click", () => {
-      searchInput.value = "";
-      selectedCategory = "전체";
+    resetButton.addEventListener(
+      "click",
+      () => {
 
-      categoryButtons.forEach((button) => {
-        button.classList.toggle(
-          "active",
-          button.dataset.category === "전체"
-        );
-      });
+        searchInput.value = "";
+        selectedCategory = "전체";
 
-      renderFaqs();
-      searchInput.focus();
-    });
+        document
+          .querySelectorAll(".category-button")
+          .forEach((button) => {
 
-    // 최초 화면에 전체 FAQ 표시
-    renderFaqs();
+            button.classList.toggle(
+              "active",
+              button.dataset.category === "전체"
+            );
+
+          });
+
+        render();
+
+        searchInput.focus();
+      }
+    );
+
+
+    // 최초 화면 표시
+    render();
   </script>
 </body>
 </html>
